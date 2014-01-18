@@ -1,0 +1,22 @@
+{% include "include/header.html" %}
+
+
+Account Information:<br/>
+
+  <form action="/account/" method="post">
+  	<table>
+  		<tr>
+  			<td> username: </td>
+  			<td> <input name="username" value="{{ username }}" size=60 /> </td>
+  		</tr>
+		<tr>
+			<td> token: </td>
+			<td> <input name="token" value="{{ token }}" size=60 /></td>
+		</tr>
+	</table>
+  	
+    <input type="submit" value="Submit">
+  </form>
+
+  
+{% include "include/footer.html" %}

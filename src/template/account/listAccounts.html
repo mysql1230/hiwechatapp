@@ -1,0 +1,23 @@
+{% include "include/header.html" %}
+
+
+Account List:<br/>
+  	<table border=1>
+  		<tr><td>username</td><td>API Token</td><td></td></tr>
+  		
+  		{% for account in accounts %}
+	  		<tr>
+	  			<td><a href="/account/update?username={{account.username}}&token={{account.token}}">{{ account.username }}</a></td>
+	  			<td>{{ account.token }}</td>
+	  			<td><a href="/account/delete?username={{ account.username }}">delete</></td>
+	  		</tr>
+	  		
+  		{% endfor %}
+  	
+  	</table>
+  	
+ 	<br/>
+ 	<a href="/account/new">New Account</a>
+ 	
+ 	
+{% include "include/footer.html" %}
