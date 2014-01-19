@@ -15,7 +15,7 @@ class Account(db.Model):
 
 
 class WeChatMessage():
-    def __init__(self,ToUserName='',FromUserName='',CreateTime='',MsgType='',Content='',MsgId='',Event=''):
+    def __init__(self,ToUserName='',FromUserName='',CreateTime='',MsgType='',Content='',MsgId='',Event='',MediaId=''):
         self.ToUserName = ToUserName
         self.FromUserName = FromUserName
         self.CreateTime = CreateTime
@@ -23,6 +23,7 @@ class WeChatMessage():
         self.Content = str(Content)
         self.MsgId = MsgId
         self.Event = Event
+        self.MediaId = MediaId
     
     def parseXML(self, data):
         import xml.dom.minidom
@@ -44,11 +45,25 @@ class WeChatMessage():
         return value
     
     def toXML(self):
+        if (self.MediaId == ''):
+            return self._to_Text_XML()
+        else:
+            return self._to_Image_XML()
+    
+    def _to_Text_XML(self):
         data = '<xml><ToUserName><![CDATA[' + self.ToUserName + ']]></ToUserName>'
         data += '<FromUserName><![CDATA[' + self.FromUserName + ']]></FromUserName>'
         data += '<CreateTime><![CDATA[' + self.CreateTime + ']]></CreateTime>'
         data += '<MsgType><![CDATA[' + self.MsgType + ']]></MsgType>'
         data += '<Content><![CDATA[' + self.Content.decode('utf-8') + ']]></Content></xml>'
+        return data
+    
+    def _to_Image_XML(self):
+        data = '<xml><ToUserName><![CDATA[' + self.ToUserName + ']]></ToUserName>'
+        data += '<FromUserName><![CDATA[' + self.FromUserName + ']]></FromUserName>'
+        data += '<CreateTime><![CDATA[' + self.CreateTime + ']]></CreateTime>'
+        data += '<MsgType><![CDATA[' + 'image' + ']]></MsgType>'
+        data += '<Image><MediaId><![CDATA[' + self.MediaId + ']]></MediaId></Image></xml>'
         return data
     
     
@@ -93,6 +108,8 @@ class WeChatApp(webapp.RequestHandler):
                 replyMessage.Content = '罗素1：每一个人的生活都应该像河水一样——开始是细小的，被限制在狭窄的两岸之间，然后热烈地冲过巨石，滑下瀑布。渐渐地，河道变宽了，河岸扩展了，河水流得平稳了。最后河水流入了海洋，不再有明显的间断和停顿，而后便毫无痛苦地摆脱了自身的存在。'
             elif (receiveMessage.Content.find('7') >=0):
                 replyMessage.Content = '罗素2：有那么两种类型的工作，一种是改变地球表面上和表面附近物体与其他物体的相对位置，另外一种是指挥别人从事第一项工作。'
+            elif (receiveMessage.Content.find('8') >=0):
+                replyMessage.MediaId = '10000016'
             else:
                 replyMessage.Content = '欢迎您来到Burke空间，请回复1,2,3,4,5,6,7得到更多娱乐 :)'
         else:
