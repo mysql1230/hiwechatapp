@@ -1,0 +1,24 @@
+{% include "include/header.html" %}
+
+
+Robot Chat Message List:<br/>
+  	<table border=1>
+  		<tr><td>ID</td><td>Type</td><td>Robot Chat Message</td><td></td></tr>
+  		
+  		{% for info in infos %}
+	  		<tr>
+	  			<td><a href="/info/update?id={{info.key.id}}">{{ info.key.id }}</a></td>
+	  			<td>{{ info.iType }}</td>
+	  			<td>{{ info.text }}</td>
+	  			<td><a href="/info/delete?id={{info.key.id}}">delete</></td>
+	  		</tr>
+	  		
+  		{% endfor %}
+  	
+  	</table>
+  	
+ 	<br/>
+ 	<a href="/info/new">New Robot Chat Message</a>
+ 	
+ 	
+{% include "include/footer.html" %}

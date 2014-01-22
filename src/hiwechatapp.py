@@ -4,14 +4,20 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.webapp import template
-from google.appengine.ext import db
+from google.appengine.ext import db 
 import os
 import hashlib
 import time
+import cgi
+import random
 
 class Account(db.Model):
     username = db.StringProperty()
     token = db.StringProperty()
+    
+class Info(db.Model):
+    iType = db.StringProperty()
+    text = db.StringProperty(multiline=True)
 
 
 class WeChatMessage():
@@ -88,35 +94,35 @@ class WeChatApp(webapp.RequestHandler):
         
         if (receiveMessage.MsgType.find('event') >=0):
             if (receiveMessage.Event.find('subscribe') >=0):
-                replyMessage.Content = '欢迎您订阅Burke空间！请回复1,2,3,4,5,6,7得到更多娱乐 :)'
+                replyMessage.Content = '欢迎您订阅Burke空间！请回复1(笑话),2(名言),3(其他)随机得到更多娱乐 :)'
             elif (receiveMessage.Event.find('unsubscribe') >=0):
                 replyMessage.Content = '你竟然取消订阅了？！成功的路上怎么能缺少您的支持呢 :('
             else:
                 replyMessage.Content = '订阅号暂不支持这个操作：' + receiveMessage.Event
         elif (receiveMessage.MsgType.find('text') >=0):
             if (receiveMessage.Content.find('1') >=0):
-                replyMessage.Content = '你是最棒的!'
+                replyMessage.Content = self._getRandomMessage('joke')
             elif (receiveMessage.Content.find('2') >=0):
-                replyMessage.Content = '你马马虎虎吧!'
+                replyMessage.Content = self._getRandomMessage('ana')
             elif (receiveMessage.Content.find('3') >=0):
-                replyMessage.Content = '你是个傻瓜!'
-            elif (receiveMessage.Content.find('4') >=0):
-                replyMessage.Content = '笑话1：昨晚上与女友在烧烤店吃烧烤，点了份烤肉“骨肉相连”不一会服务员端着盘子走过来并温馨的说：你们的骨肉。。 哥顿了一下，，现在的人说话能不能别这么简洁。'
-            elif (receiveMessage.Content.find('5') >=0):
-                replyMessage.Content = '笑话2：“待我长发及腰娶我可好？”“不，我心有所属。”“她哪里比我好，她是个尼姑啊。”“不许你这么讲她，请自重！方丈……”'
-            elif (receiveMessage.Content.find('6') >=0):
-                replyMessage.Content = '罗素1：每一个人的生活都应该像河水一样——开始是细小的，被限制在狭窄的两岸之间，然后热烈地冲过巨石，滑下瀑布。渐渐地，河道变宽了，河岸扩展了，河水流得平稳了。最后河水流入了海洋，不再有明显的间断和停顿，而后便毫无痛苦地摆脱了自身的存在。'
-            elif (receiveMessage.Content.find('7') >=0):
-                replyMessage.Content = '罗素2：有那么两种类型的工作，一种是改变地球表面上和表面附近物体与其他物体的相对位置，另外一种是指挥别人从事第一项工作。'
-            elif (receiveMessage.Content.find('8') >=0):
-                replyMessage.MediaId = '10000016'
+                replyMessage.Content = self._getRandomMessage('other')
             else:
-                replyMessage.Content = '欢迎您来到Burke空间，请回复1,2,3,4,5,6,7得到更多娱乐 :)'
+                replyMessage.Content = '欢迎您来到Burke空间，请回复1(笑话),2(名言),3(其他)随机得到更多娱乐 :)'
         else:
-            replyMessage.Content = '对不起，目前只支持文本，暂不支持图片和语音等操作! 欢迎您来到Burke空间，请回复1,2,3,4,5,6,7得到更多娱乐 :)'
+            replyMessage.Content = '对不起，目前只支持文本，暂不支持图片和语音等操作! 欢迎您来到Burke空间，请回复1(笑话),2(名言),3(其他)随机得到更多娱乐 :)'
         
         self.response.headers.add_header("Content-type","text/xml")
         self.response.out.write(replyMessage.toXML())
+    
+    def _getRandomMessage(self, iType):
+        message = '获取错误，请重试:('
+        try:
+            infos = Info.gql("WHERE iType = :1", iType)
+            num = random.randint(1, infos.count())
+            message = infos.fetch(1, num-1)[0].text
+        except:
+            pass
+        return message
         
     def ping(self):
         echostr = self.request.get('echostr')
@@ -206,12 +212,89 @@ class AccountApp(webapp.RequestHandler):
         self.list()
         
 
+class InfoApp(webapp.RequestHandler):
+    def get(self,op):
+        if (op == 'new'):
+            self.new()
+        elif (op == 'update'):
+            self.update()
+        elif (op == 'delete'):
+            self.delete()
+        else:
+            self.list()
+            
+    def list(self):
+        template_values = {
+            'infos': Info.all().order("-iType"),
+            }
+        
+        self.response.out.write(myTemplateRender('info/listInfos.html', template_values))
+    
+    def new(self):
+        template_values = {
+            'id': '',
+            'iType' : '',
+            'text' : '',
+            }
+        
+        self.response.out.write(myTemplateRender('info/newInfo.html', template_values))
+        
+    def update(self):
+        infoId = self.request.get('id')
+        info = Info.get_by_id(long(infoId))
+        iType = info.iType
+        text = info.text
+        template_values = {
+            'id': infoId,
+            'iType' : iType,
+            'text' : text,
+            }
+        
+        self.response.out.write(myTemplateRender('info/newInfo.html', template_values))
+        
+    def delete(self):
+        infoId = self.request.get('id')
+        info = Info.get_by_id(long(infoId))
+        info.delete()
+        info.delete()
+        
+        self.list()
+
+    def post(self, op):
+        infoId = self.request.get('id')
+        iType = self.request.get('iType')
+        text = self.request.get('text')
+        try:
+            import sys
+            code = sys.getdefaultencoding()
+            if code != 'utf8':   
+                reload(sys)   
+                sys.setdefaultencoding('utf8') 
+            text = self.request.get('text')
+        except:
+            pass
+        if infoId == '':
+            info = Info()
+            info.iType = iType
+            info.text = text
+            info.put()
+            info.put()
+        else:
+            info = Info.get_by_id(long(infoId))
+            info.iType = iType
+            info.text = text
+            info.put()
+            info.put()
+        
+        self.list()
+
 
 
 application = webapp.WSGIApplication(
                                      [('/', MainPage),
                                       ('/weChatApp/?(?P<op>[^/]*)/?(?P<user>[^/]*)', WeChatApp),
                                       ('/account/?(?P<op>[^/]*)', AccountApp),
+                                      ('/info/?(?P<op>[^/]*)', InfoApp),
                                      ], debug=True)
 
 def myTemplateRender(template_file, template_values):

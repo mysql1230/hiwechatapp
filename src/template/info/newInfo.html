@@ -1,0 +1,33 @@
+{% include "include/header.html" %}
+
+
+Robot Chat Message:<br/><br/>
+
+  <form action="/info/" method="post">
+  	<table>
+  		<tr>
+  			<td> ID: </td>
+  			<td> {{ id }} </td>
+  			<input type="hidden" name="id" value="{{ id }}">
+  		</tr>
+  		<tr>
+  			<td> Type: </td>
+			<td> 
+	  			<select size="1" name="iType">
+				  <option value="joke" {% if iType == "joke" %} selected=true {% endif %}>joke</option>
+				  <option value="ana" {% if iType == "ana" %} selected=true {% endif %}>ana</option>
+				  <option value="other" {% if iType == "other" %} selected=true {% endif %}>other</option>
+				</select>
+			</td> 
+  		</tr>
+		<tr>
+			<td> Robot Chat Message: </td>
+			<td> <textarea name="text" rows="10" cols="80">{{ text }}</textarea></td>
+		</tr>
+	</table>
+  	
+    <input type="submit" value="Submit">
+  </form>
+
+  
+{% include "include/footer.html" %}
