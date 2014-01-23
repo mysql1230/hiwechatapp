@@ -14,9 +14,10 @@ Robot Chat Message:<br/><br/>
   			<td> Type: </td>
 			<td> 
 	  			<select size="1" name="iType">
-				  <option value="joke" {% if iType == "joke" %} selected=true {% endif %}>joke</option>
-				  <option value="ana" {% if iType == "ana" %} selected=true {% endif %}>ana</option>
-				  <option value="other" {% if iType == "other" %} selected=true {% endif %}>other</option>
+				  <option value="joke" {% if iType == "joke" %} selected=true {% endif %}>{{ types.0 }}</option>
+				  <option value="ana" {% if iType == "ana" %} selected=true {% endif %}>{{ types.1 }}</option>
+				  <option value="other" {% if iType == "other" %} selected=true {% endif %}>{{ types.2 }}</option>
+				  <option value="test" {% if iType == "test" %} selected=true {% endif %}>{{ types.3 }}</option>
 				</select>
 			</td> 
   		</tr>

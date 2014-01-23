@@ -8,7 +8,12 @@ Robot Chat Message List:<br/>
   		{% for info in infos %}
 	  		<tr>
 	  			<td><a href="/info/update?id={{info.key.id}}">{{ info.key.id }}</a></td>
-	  			<td>{{ info.iType }}</td>
+	  			<td>
+	  				{% if info.iType == "joke" %} {{ types.0 }} {% endif %}
+	  				{% if info.iType == "ana" %} {{ types.1 }} {% endif %}
+	  				{% if info.iType == "other" %} {{ types.2 }} {% endif %}
+	  				{% if info.iType == "test" %} {{ types.3 }} {% endif %}
+	  			</td>
 	  			<td>{{ info.text }}</td>
 	  			<td><a href="/info/delete?id={{info.key.id}}">delete</></td>
 	  		</tr>

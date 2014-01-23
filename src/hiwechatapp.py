@@ -106,6 +106,8 @@ class WeChatApp(webapp.RequestHandler):
                 replyMessage.Content = self._getRandomMessage('ana')
             elif (receiveMessage.Content.find('3') >=0):
                 replyMessage.Content = self._getRandomMessage('other')
+            elif (receiveMessage.Content.find('0') >=0):
+                replyMessage.Content = self._getRandomMessage('test')
             else:
                 replyMessage.Content = '欢迎您来到Burke空间，请回复1(笑话),2(名言),3(其他)随机得到更多娱乐 :)'
         else:
@@ -222,6 +224,7 @@ class InfoApp(webapp.RequestHandler):
     def list(self):
         template_values = {
             'infos': Info.all().order("-iType"),
+            'types': ['笑话','名言','其他','测试'],
             }
         
         self.response.out.write(myTemplateRender('info/listInfos.html', template_values))
@@ -231,6 +234,7 @@ class InfoApp(webapp.RequestHandler):
             'id': '',
             'iType' : '',
             'text' : '',
+            'types': ['笑话','名言','其他','测试'],
             }
         
         self.response.out.write(myTemplateRender('info/newInfo.html', template_values))
@@ -244,6 +248,7 @@ class InfoApp(webapp.RequestHandler):
             'id': infoId,
             'iType' : iType,
             'text' : text,
+            'types': ['笑话','名言','其他','测试'],
             }
         
         self.response.out.write(myTemplateRender('info/newInfo.html', template_values))
