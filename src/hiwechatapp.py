@@ -61,7 +61,7 @@ class WeChatMessage():
         data += '<FromUserName><![CDATA[' + self.FromUserName + ']]></FromUserName>'
         data += '<CreateTime><![CDATA[' + self.CreateTime + ']]></CreateTime>'
         data += '<MsgType><![CDATA[' + self.MsgType + ']]></MsgType>'
-        data += '<Content><![CDATA[' + self.Content.decode('utf-8') + ']]></Content></xml>'
+        data += '<Content><![CDATA[' + self.Content.decode('utf8') + ']]></Content></xml>'
         return data
     
     def _to_Image_XML(self):
@@ -115,13 +115,9 @@ class WeChatApp(webapp.RequestHandler):
         self.response.out.write(replyMessage.toXML())
     
     def _getRandomMessage(self, iType):
-        message = '获取错误，请重试:('
-        try:
-            infos = Info.gql("WHERE iType = :1", iType)
-            num = random.randint(1, infos.count())
-            message = infos.fetch(1, num-1)[0].text
-        except:
-            pass
+        infos = Info.gql("WHERE iType = :1", iType)
+        num = random.randint(1, infos.count())
+        message = infos.fetch(1, num-1)[0].text.encode('utf8')
         return message
         
     def ping(self):
